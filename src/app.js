@@ -1,6 +1,7 @@
 import './../styles/styles.css'
 import { initializeApp } from "firebase/app";
 import { getStorage, ref, uploadBytes, getDownloadURL, listAll, container, deleteObject } from "firebase/storage";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD5eApBvDfNxy5lVrngNiPY2QSSlepsBSA",
@@ -14,7 +15,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
-
+const db = getFirestore(app);
 
 
 // // const img = document.createElement("img");
@@ -149,37 +150,184 @@ const storage = getStorage(app);
 // })
 
 
-const albums = document.getElementById("albums");
-const images = document.getElementById("images");
+// const albums = document.getElementById("albums");
+// const images = document.getElementById("images");
 
-const storageRef = ref(storage);
-listAll(storageRef).then(res => {
-  res.prefixes.forEach(prefix => {
-    const listItem = document.createElement("li");
-    listItem.innerText = prefix.name;
+// const storageRef = ref(storage);
+// listAll(storageRef).then(res => {
+//   res.prefixes.forEach(prefix => {
+//     const listItem = document.createElement("li");
+//     listItem.innerText = prefix.name;
 
-listItem.addEventListener("click", () => {
-  listAll(prefix).then(imgRes => {
-    images.innerHTML = "";
-    imgRes.items.forEach((item) => {
-      const imageItem = document.createElement("li");
-      const deleteBtn = document.createElement("button");
+// listItem.addEventListener("click", () => {
+//   listAll(prefix).then(imgRes => {
+//     images.innerHTML = "";
+//     imgRes.items.forEach((item) => {
+//       const imageItem = document.createElement("li");
+//       const deleteBtn = document.createElement("button");
 
-      deleteBtn.innerText = "Delete";
-      deleteBtn.addEventListener("click", () => {
-        deleteObject(item).then(() => {
-          images.removeChild(imageItem);
-        })
-      })
+//       deleteBtn.innerText = "Delete";
+//       deleteBtn.addEventListener("click", () => {
+//         deleteObject(item).then(() => {
+//           images.removeChild(imageItem);
+//         })
+//       })
 
-      imageItem.innerText = item.name;
-      imageItem.appendChild(deleteBtn);
+//       imageItem.innerText = item.name;
+//       imageItem.appendChild(deleteBtn);
 
-      images.appendChild(imageItem);
+//       images.appendChild(imageItem);
+//     })
+//   })
+// })
+
+//     albums.appendChild(listItem);
+//   })
+// })
+
+// const userNameInput = document.getElementById("userName");
+// const userSurnameInput = document.getElementById("userSurname");
+// const addUserBtn = document.getElementById("addUser");
+// const collectionSelect = document.getElementById("collectionName");
+
+// addUserBtn.addEventListener("click", () => {
+//   const userName = userNameInput.value;
+//   const userSurname = userSurnameInput.value;
+//   const collectionName = collectionSelect.value;
+
+//   const jkDoc = doc(db, collectionName, `${userName}${userSurname}`);
+//   setDoc(jkDoc, {
+//     name: userName,
+//     surname: userSurname
+//   }).then(() => {
+//     userNameInput.value = "";
+//     userSurnameInput.value = "";
+//   });
+// })
+
+// const docIdInput = document.getElementById("docId");
+// const searchBtn = document.getElementById("search");
+// const dataHeader = document.getElementById("data");
+
+// searchBtn.addEventListener("click", () => {
+//   const docId = docIdInput.value;
+  
+//   const myDoc = doc(db, "users", docId);
+//   getDoc(myDoc).then(docData => {
+//     if(docData.exists()){
+//       const data = docData.data();
+//       dataHeader.innerText = `${data.name} ${data.surname}`;
+//     }
+//     else {
+//       dataHeader.innerText = "Not found";
+//     }
+//   })
+// })
+
+// const usersOrderedList = document.getElementById("usersList");
+// const collectionNameSelect = document.getElementById("collectionName");
+
+// collectionNameSelect.addEventListener("change", () => {
+//   const usersColl = collection(db, collectionNameSelect.value);
+//   usersOrderedList.innerHTML = "";
+
+//   getDocs(usersColl).then((dataDocs) => {
+//   dataDocs.docs.forEach(dataDoc => {
+//     const data = dataDoc.data();
+//     const li = document.createElement("li");
+
+//     li.innerText = `${data.name} ${data.surname}`;
+
+//     usersOrderedList.appendChild(li);
+//    })
+//   })
+
+// });
+
+// const nameInput = document.getElementById("name");
+// const surnameInput = document.getElementById("surname");
+// const addBtn = document.getElementById("add");
+// const usersList = document.getElementById("users");
+// const usersCollection = collection(db, "users");
+// let userEditRef;
+
+
+// function displayUsers() {
+// getDocs(usersCollection).then(docsData => {
+//   usersList.innerHTML = "",
+
+//   docsData.docs.forEach((docData) => {
+//     const userData = docData.data();
+
+//     const li = document.createElement("li");
+//     const deleteBtn = document.createElement("button");
+//     const editBtn = document.createElement("button");
+
+//        deleteBtn.addEventListener("click", () => {
+//       deleteDoc(docData.ref).then(() => {
+//         displayUsers();
+//       });
+//     });
+
+//     editBtn.addEventListener("click", () => {
+//       nameInput.value = userData.name;
+//       surnameInput.value = userData.surname;
+//       userEditRef = docData.ref;
+//     });
+
+            
+//     li.innerText = `${userData.name} ${userData.surname}`;
+//     deleteBtn.innerText = "Delete";
+//     editBtn.innerText = "Edit";
+
+//     usersList.appendChild(li);
+//     li.appendChild(deleteBtn);
+//     li.appendChild(editBtn);
+//   })
+// })
+// }
+
+// displayUsers();
+
+// addBtn.addEventListener("click", () => {
+//   if(userEditRef){
+//       updateDoc(userEditRef, {
+//         name: nameInput.value,
+//         surname: surnameInput.value
+//       }).then(() => {
+//         displayUsers();
+//         nameInput.value = "";
+//         surnameInput.value = "";
+//         userEditRef = undefined;
+//       })
+//   }
+//   else {
+//     addDoc(usersCollection, {
+//       name: nameInput.value,
+//       surname: surnameInput.value
+//     }).then(() => {
+//       displayUsers();
+//       nameInput.value = "";
+//       surnameInput.value = "";
+//     })
+//   }
+// });
+
+const nameInput = document.getElementById("name");
+const searchBtn = document.getElementById("search");
+const usersList = document.getElementById("users");
+
+searchBtn.addEventListener("click", () => {
+  const usersColl = collection(db, "users");
+  const usersQuery = query(usersColl, where("name", "==", nameInput.value));
+
+  getDocs(usersQuery).then((docsData) => {
+    usersList.innerHTML = "";
+
+    docsData.docs.forEach((docData) => {
+      const li = document.createElement("li");
+      li.innerText = docData.id;
+      usersList.appendChild(li);
     })
   })
-})
-
-    albums.appendChild(listItem);
-  })
-})
+});
