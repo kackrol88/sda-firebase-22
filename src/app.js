@@ -1,11 +1,16 @@
 import './../styles/styles.css'
 import { initializeApp } from "firebase/app";
 import { getStorage, ref, uploadBytes, getDownloadURL, listAll, container, deleteObject } from "firebase/storage";
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, query, setDoc, updateDoc, where } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, onSnapshot, query, setDoc, updateDoc, where } from "firebase/firestore";
+import { getDatabase, onChildAdded, onChildRemoved, onValue, push, ref as refdb, remove, set } from "firebase/database";
+import { getAuth, EmailAuthProvider, onAuthStateChanged, signOut, GoogleAuthProvider } from "firebase/auth";
+import * as firebaseui from 'firebaseui';
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyD5eApBvDfNxy5lVrngNiPY2QSSlepsBSA",
   authDomain: "sda-firebase-22kk.firebaseapp.com",
+  databaseURL: "https://sda-firebase-22kk-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "sda-firebase-22kk",
   storageBucket: "sda-firebase-22kk.appspot.com",
   messagingSenderId: "138487379478",
@@ -16,8 +21,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 const db = getFirestore(app);
+const rdb = getDatabase(app);
+const auth = getAuth(app);
+const ui = new firebaseui.auth.AuthUI(auth);
 
-
+// ZADANIE 1 Storage
 // // const img = document.createElement("img");
 // // img.src = "https://firebasestorage.googleapis.com/v0/b/sda-firebase-22kk.appspot.com/o/Molly.jpg?alt=media&token=6cbdc9dd-6f1c-4459-8f6c-db3f48f22622";
 // // document.body.appendChild(img);
@@ -42,6 +50,7 @@ const db = getFirestore(app);
 //     })
 // })
 
+// ZADANIE 2
 // const searchBtn = document.getElementById("searchBtn");
 // const filenameInput = document.getElementById("filename");
 // const img = document.getElementById("imageView");
@@ -57,6 +66,8 @@ const db = getFirestore(app);
 //     messageHeader.innerText = "Nie ma takiego pliku!";
 //   })
 // })
+
+// ZADANIE 3
 
 // const list = document.getElementById("list");
 // const storageRef = ref(storage);
@@ -81,6 +92,8 @@ const db = getFirestore(app);
 //   })
 // })
 
+// ZADANIE 4
+
 // const storageRef = ref(storage);
 // listAll(storageRef).then(res => {
 //   res.items.forEach(item => {
@@ -103,6 +116,8 @@ const db = getFirestore(app);
 //   })
 // })
 
+
+// ZADANIE 5
 // const albums = document.getElementById("albums");
 // const sendBtn = document.getElementById("sendPhoto");
 // const fileInput = document.getElementById("file");
@@ -150,6 +165,7 @@ const db = getFirestore(app);
 // })
 
 
+// ZADANIE 6
 // const albums = document.getElementById("albums");
 // const images = document.getElementById("images");
 
@@ -185,6 +201,9 @@ const db = getFirestore(app);
 //   })
 // })
 
+
+// ZADANIE 7 Firestire
+
 // const userNameInput = document.getElementById("userName");
 // const userSurnameInput = document.getElementById("userSurname");
 // const addUserBtn = document.getElementById("addUser");
@@ -205,6 +224,8 @@ const db = getFirestore(app);
 //   });
 // })
 
+
+// ZADANIE 8
 // const docIdInput = document.getElementById("docId");
 // const searchBtn = document.getElementById("search");
 // const dataHeader = document.getElementById("data");
@@ -223,6 +244,9 @@ const db = getFirestore(app);
 //     }
 //   })
 // })
+
+
+// ZADANIE 9
 
 // const usersOrderedList = document.getElementById("usersList");
 // const collectionNameSelect = document.getElementById("collectionName");
@@ -244,6 +268,9 @@ const db = getFirestore(app);
 
 // });
 
+
+
+// ZADANIE 10
 // const nameInput = document.getElementById("name");
 // const surnameInput = document.getElementById("surname");
 // const addBtn = document.getElementById("add");
@@ -313,21 +340,147 @@ const db = getFirestore(app);
 //   }
 // });
 
-const nameInput = document.getElementById("name");
-const searchBtn = document.getElementById("search");
-const usersList = document.getElementById("users");
 
-searchBtn.addEventListener("click", () => {
-  const usersColl = collection(db, "users");
-  const usersQuery = query(usersColl, where("name", "==", nameInput.value));
+// ZADANIE 11
+// const nameInput = document.getElementById("name");
+// const searchBtn = document.getElementById("search");
+// const usersList = document.getElementById("users");
 
-  getDocs(usersQuery).then((docsData) => {
-    usersList.innerHTML = "";
+// searchBtn.addEventListener("click", () => {
+//   const usersColl = collection(db, "users");
+//   const usersQuery = query(usersColl, where("name", "==", nameInput.value));
 
-    docsData.docs.forEach((docData) => {
-      const li = document.createElement("li");
-      li.innerText = docData.id;
-      usersList.appendChild(li);
-    })
-  })
+//   getDocs(usersQuery).then((docsData) => {
+//     usersList.innerHTML = "";
+
+//     docsData.docs.forEach((docData) => {
+//       const li = document.createElement("li");
+//       li.innerText = docData.id;
+//       usersList.appendChild(li);
+//     })
+//   })
+// });
+
+// ZADANIE 12 Realtime DataBase --  baza danych czasu rzeczywistego
+// Dodawanie użytkowników do bazy
+
+// const nameInput = document.getElementById("name");
+// const surnameInput = document.getElementById("surname");
+// const addBtn = document.getElementById("add");
+// const usersList = document.getElementById("users")
+
+// addBtn.addEventListener("click", () => {
+//   const name = nameInput.value;
+//   const surname = surnameInput.value;
+ 
+//   const userRef = refdb(rdb, `users/${name}${surname}`);
+
+//      set(userRef, {
+//      name: name,
+//      surname: surname
+//   }).then(() => {
+//     nameInput.value ="";
+//     surnameInput.value = "";
+//   });
+// })
+
+// const usersRef = refdb(rdb, "users");
+// // onValue(usersRef, (snapshot) => {
+// //     usersList.innerHTML = "";
+// //     snapshot.forEach((userSnapshot) => {
+// //       const user = userSnapshot.val();
+
+// //       const li = document.createElement("li");
+// //       li.innerText = `${user.name} ${user.surname}`;
+
+// //       usersList.appendChild(li);
+// //     })
+// // })
+
+// onChildAdded(usersRef, (snapshot) => {
+//   const user = snapshot.val();
+
+//   const li = document.createElement("li");
+//   li.innerText = `${user.name} ${user.surname}`;
+
+//   usersList.appendChild(li);
+// })
+
+
+// ZADANIE 13 CZAT
+
+const userSelect = document.getElementById("user");
+const messageTextArea = document.getElementById("message");
+const sendBtn = document.getElementById("send");
+
+const messagesRef = refdb(rdb, "messages");
+sendBtn.addEventListener("click", () => {
+    const messageRef = push(messagesRef);
+
+    set(messageRef, {
+      user: userSelect.value,
+      text: messageTextArea.value
+    }).then(() => {
+      messageTextArea.value = "";
+    });
 });
+
+onChildAdded(messagesRef, (snapshot) => {
+  const message = snapshot.val();
+
+  const deleteBtn = document.createElement("button");
+  const messageDiv = document.createElement("div");
+
+  messageDiv.id = snapshot.key;
+  messageDiv.innerText = `${message.user} -- ${message.text}`;
+  deleteBtn.innerText = "Delete";
+
+  deleteBtn.addEventListener("click", () => {
+    remove(snapshot.ref);
+  });
+
+  messageDiv.appendChild(deleteBtn);
+  document.body.appendChild(messageDiv);
+});
+
+onChildRemoved(messagesRef, (snapshot) => {
+  const elToRemove = document.getElementById(snapshot.key);
+  document.body.removeChild(elToRemove);
+});
+
+const usersRef = refdb(rdb, "users");
+onChildAdded(usersRef, (snapshot) => {
+  const user = snapshot.val();
+  const option = document.createElement("option");
+  
+  option.innerText = `${user.name} ${user.surname}`;
+  
+    userSelect.appendChild(option);
+});
+
+//FIREBASE AUTHENTICATION
+
+ui.start('#firebaseui-auth-container', {
+  signInOptions: [
+      EmailAuthProvider.PROVIDER_ID,
+      GoogleAuthProvider.PROVIDER_ID
+  ],
+  signInSuccessUrl: "localhost:8080"
+});
+
+
+const logoutBtn = document.getElementById("logout");
+onAuthStateChanged(auth, (user) => {
+  if(user){
+    console.log(user);
+    logoutBtn.style.display = "block";
+  }
+  else {
+    logoutBtn.style.display = "none";
+    console.log("WYLOGOWANY!");
+  }
+})
+
+logoutBtn.addEventListener("click", () => {
+  signOut(auth);
+})
